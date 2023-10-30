@@ -1,1 +1,1 @@
-http://ai.friends/
+https://romahalaichuk.github.io/test.AI/
