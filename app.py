@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify, render_template
 import subprocess
-import speech_recognition as sr  # Importuj bibliotekę SpeechRecognition
+import speech_recognition as sr
 
 app = Flask(__name__)
 
@@ -21,15 +21,22 @@ def recognize_speech():
 
     try:
         recognized_question = r.recognize_google(audio, language="pl-PL")  # Rozpoznaj pytanie w języku polskim
-        # Tutaj dodaj kod do wygenerowania odpowiedzi na podstawie pytania
-        response_text = "Odpowiedź na pytanie: " + recognized_question
+
+        # Dodaj warunek na podstawie rozpoznanego języka pytania
+        if "pl" in recognized_question.lower():
+            # Jeśli rozpoznano język polski, generuj odpowiedź w języku polskim
+            response_text = "Odpowiedź po polsku na pytanie: " + recognized_question
+        else:
+            # Jeśli rozpoznano inny język, generuj odpowiedź w języku angielskim
+            response_text = "Odpowiedź po angielsku na pytanie: " + recognized_question
     except sr.UnknownValueError:
         response_text = "Nie rozpoznano pytania"
     except sr.RequestError:
         response_text = "Błąd w trakcie rozpoznawania"
 
     # Tutaj dodaj kod do wygenerowania odpowiedzi w mowie
-    subprocess.call(["C:\\testAinarzendzia3\\eSpeak\\command_line\\espeak.exe", response_text])
+    subprocess.call(["C:\\testAinarzendzia3\\eSpeak\\command_line\\espeak.exe", "--voice=pl", "--rate=100", "--pitch=30", response_text])
+
 
     return jsonify({"response": response_text})
 
