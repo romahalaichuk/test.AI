@@ -1,51 +1,37 @@
-from flask import Flask, request, jsonify
-import spacy
-import sqlite3
+from flask import Flask, request, jsonify, render_template
+import subprocess
+import speech_recognition as sr  # Importuj bibliotekę SpeechRecognition
 
-app = Flask(__name)
-nlp = spacy.load("en_core_web_sm")
+app = Flask(__name__)
 
-# Prosta baza danych SQLite z przykładowymi odpowiedziami
-conn = sqlite3.connect("responses.db")
-cursor = conn.cursor()
+@app.route('/')
+def index():
+    return render_template('index.html')
 
-# Utwórz tabelę, jeśli nie istnieje
-cursor.execute('''
-    CREATE TABLE IF NOT EXISTS responses (
-        id INTEGER PRIMARY KEY,
-        question TEXT,
-        response TEXT
-    )
-''')
-conn.commit()
-
-# Dodaj przykładowe odpowiedzi
-cursor.executemany("INSERT INTO responses (question, response) VALUES (?, ?)", [
-    ("Cześć", "Cześć! Jak mogę Ci pomóc?"),
-    ("Jak się masz?", "Dziękuję, że pytasz! Jestem w formie."),
-    ("Co słychać?", "Wszystko w porządku, a u Ciebie?"),
-])
-conn.commit()
-
-@app.route("/ask", methods=["POST"])
-def ask():
+@app.route('/recognize', methods=['POST'])
+def recognize_speech():
     data = request.get_json()
-    user_message = data["message"]
-    response = generate_response(user_message)
-    return jsonify({"response": response})
+    question = data.get("question")
 
-def generate_response(user_message):
-    # Sprawdź bazę danych w poszukiwaniu odpowiedzi
-    cursor.execute("SELECT response FROM responses WHERE question=?", (user_message,))
-    row = cursor.fetchone()
-    if row:
-        return row[0]
+    # Tutaj dodaj kod do rozpoznawania pytania
+    r = sr.Recognizer()
+    with sr.Microphone() as source:
+        r.adjust_for_ambient_noise(source)  # Dostosuj mikrofon do poziomu szumu
+        audio = r.listen(source)
 
-    # Jeśli nie znaleziono odpowiedzi w bazie danych, przeprocesuj pytanie za pomocą spaCy
-    doc = nlp(user_message)
-    # Tutaj można dodać bardziej zaawansowaną logikę, np. uczenie maszynowe, aby generować odpowiedzi.
+    try:
+        recognized_question = r.recognize_google(audio, language="pl-PL")  # Rozpoznaj pytanie w języku polskim
+        # Tutaj dodaj kod do wygenerowania odpowiedzi na podstawie pytania
+        response_text = "Odpowiedź na pytanie: " + recognized_question
+    except sr.UnknownValueError:
+        response_text = "Nie rozpoznano pytania"
+    except sr.RequestError:
+        response_text = "Błąd w trakcie rozpoznawania"
 
-    return "Przepraszam, nie jestem pewien, jak na to odpowiedzieć."
+    # Tutaj dodaj kod do wygenerowania odpowiedzi w mowie
+    subprocess.call(["C:\\testAinarzendzia3\\eSpeak\\command_line\\espeak.exe", response_text])
 
-if __name__ == "__main__":
-    app.run(debug=True)
+    return jsonify({"response": response_text})
+
+if __name__ == '__main__':
+    app.run()

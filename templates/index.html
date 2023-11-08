@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<title>Głosowy Przyjaciel</title>
+		<link
+			rel="stylesheet"
+			href="{{ url_for('static', filename='styles.css') }}" />
+	</head>
+	<body>
+		<div class="container">
+			<h1>Głosowy Przyjaciel</h1>
+			<p class="output">Odpowiedź pojawi się tutaj</p>
+			<button id="speakButton">Wymów komendę</button>
+		</div>
+		<script src="{{ url_for('static', filename='script.js') }}"></script>
+	</body>
+</html>
