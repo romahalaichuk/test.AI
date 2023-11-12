@@ -2,7 +2,16 @@ from flask import Flask, request, jsonify, render_template
 import subprocess
 import speech_recognition as sr
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='/static')
+@app.route('/meta.json', methods=['GET'])
+def get_meta_data():
+    # Tutaj możesz umieścić dowolne dane, które chcesz udostępnić jako meta.json
+    meta_data = {
+        "key": "value",
+        "another_key": "another_value"
+    }
+
+    return jsonify(meta_data)
 
 @app.route('/')
 def index():

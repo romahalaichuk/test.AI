@@ -29,6 +29,9 @@ speakButton.addEventListener("click", () => {
 					const synth = window.speechSynthesis;
 					const utterance = new SpeechSynthesisUtterance(responseText);
 					synth.speak(utterance);
+				})
+				.catch((error) => {
+					console.error("Błąd podczas wysyłania żądania:", error);
 				});
 		};
 
